@@ -1,6 +1,7 @@
 package com.example.springsecurity.auth;
 
 import com.example.springsecurity.config.JwtService;
+import com.example.springsecurity.entity.Role;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.repository.UserRepository;
 import com.example.springsecurity.token.Token;
@@ -34,6 +35,13 @@ public class AuthenticationService {
             throw new DuplicateEmailException("Email already exists !! ");
         }
 
+
+        if(Role.COMPANY.equals(request.getRole())) {
+            if (userRepository.existsByCompanyName(request.getCompanyName())) {
+                throw new DuplicateCompanyNameException("Company Name already exists");
+            }
+        }
+
         var user= User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -41,6 +49,7 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
                 .created_at(LocalDateTime.now())
+                .companyName(request.getCompanyName())
                 .build();
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);

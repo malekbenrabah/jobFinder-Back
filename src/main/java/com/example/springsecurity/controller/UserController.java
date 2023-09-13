@@ -7,11 +7,14 @@ import com.example.springsecurity.entity.User;
 import com.example.springsecurity.exception.*;
 import com.example.springsecurity.service.IUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lowagie.text.DocumentException;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +24,7 @@ import com.example.springsecurity.repository.UserRepository;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @RestController
@@ -112,6 +116,28 @@ public class UserController {
                             .build()
                     );       }
     }
+
+
+    @GetMapping("/getAllUsers")
+    public List<UserDTO> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/checkCompanyName")
+    public boolean checkCompanyName(@RequestParam("companyName") String companyName){
+        return userService.checkCompanyName(companyName);
+    }
+
+    @GetMapping("/checkUserEmail")
+    public boolean checkEmailUser(@RequestParam("userEmail")String userEmail) {
+        return userService.checkEmailUser(userEmail);
+    }
+
+
+
+
+
+
 
 
    /*

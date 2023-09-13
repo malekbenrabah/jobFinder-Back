@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import static com.example.springsecurity.entity.Permission.*;
 import static com.example.springsecurity.entity.Role.ADMIN;
-import static com.example.springsecurity.entity.Role.MANAGER;
+import static com.example.springsecurity.entity.Role.COMPANY;
+import static com.example.springsecurity.entity.Role.USER;
 
 @Configuration
 @EnableWebSecurity
@@ -36,10 +37,12 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**","/user/forgot-password","/user/set-password")
+                .requestMatchers("/auth/**","/user/forgot-password","/user/set-password","/user/checkCompanyName","/user/checkUserEmail","/job/getJobs")
                     .permitAll()
                 //.requestMatchers("/management/**").hasAnyRole(ADMIN.name(), MANAGER.name())
-                .requestMatchers("/management/**","/user/**").hasAnyAuthority("ADMIN", "MANAGER")
+                .requestMatchers("/management/**","/user/**").hasAnyAuthority("ADMIN", "COMPANY","USER")
+                .requestMatchers("/skills/**","/experience/**","/education/**","/cv/**","/savedJobs/**","/job/applyJob","/job/getUserAppliedJobs").hasAnyAuthority("USER")
+                .requestMatchers("/job/**").hasAuthority("COMPANY")
                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
 
                 .anyRequest()

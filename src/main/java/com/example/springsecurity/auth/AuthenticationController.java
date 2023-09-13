@@ -33,6 +33,11 @@ public class AuthenticationController {
                     .success(false)
                     .message(ex.getMessage())
                     .build());
+        }catch (DuplicateCompanyNameException cnex){
+            return ResponseEntity.badRequest().body(AutenticationResponse.builder()
+                    .success(false)
+                    .message(cnex.getMessage())
+                    .build());
         }
 
 

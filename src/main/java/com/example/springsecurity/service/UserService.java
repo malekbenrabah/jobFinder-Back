@@ -2,16 +2,28 @@ package com.example.springsecurity.service;
 
 import com.example.springsecurity.config.ApplicationConfig;
 import com.example.springsecurity.config.JwtService;
+import com.example.springsecurity.dto.EducationDTO;
+import com.example.springsecurity.dto.ExperienceDTO;
+import com.example.springsecurity.dto.SkillDTO;
 import com.example.springsecurity.dto.UserDTO;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.exception.*;
+import com.example.springsecurity.service.Education.IEducationService;
+import com.example.springsecurity.service.Experience.IExperienceService;
+import com.example.springsecurity.service.Skills.ISkillsService;
+import com.itextpdf.html2pdf.ConverterProperties;
+import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.html2pdf.resolver.font.DefaultFontProvider;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
+import com.lowagie.text.DocumentException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,18 +31,20 @@ import org.springframework.stereotype.Service;
 
 import com.example.springsecurity.repository.UserRepository;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -51,8 +65,6 @@ public class UserService implements IUserService{
     @Autowired
     private Environment env;
 
-    @Autowired
-    TemplateEngine templateEngine;
 
 
 
@@ -86,6 +98,7 @@ public class UserService implements IUserService{
     }
 
 
+
     @Override
     public UserDTO updatePhoto(MultipartFile photo, HttpServletRequest request) throws IOException {
 
@@ -104,6 +117,9 @@ public class UserService implements IUserService{
         user.setLastname(userDTO.getLastname());
         user.setPhone(userDTO.getPhone());
         user.setPhoto(storeImage(photo));
+        user.setCompanyName(userDTO.getCompanyName());
+        user.setAdresse(userDTO.getAdresse());
+        user.setAboutMe(userDTO.getAboutMe());
         userRepository.save(user);
         return UserDTO.fromEntityToDTO(user);
     }
@@ -112,7 +128,7 @@ public class UserService implements IUserService{
 
 
     public String storeImage(MultipartFile profileImage) throws IOException {
-        //String imagePath = null;
+        String imagePath = null;
         String angularImagePath = null;
 
         if (profileImage != null && !profileImage.isEmpty()) {
@@ -132,9 +148,23 @@ public class UserService implements IUserService{
                 throw new IOException("Could not store file " + fileName + ". Please try again!", ex);
             }*/
 
+            //saving into spring path
+            String currentDir = System.getProperty("user.dir");
+            Path uploadDir = Paths.get(currentDir, "src", "main", "resources", "images");
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+            try (InputStream inputStream = profileImage.getInputStream()) {
+                Path filePath = uploadDir.resolve(fileName);
+                Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+                imagePath = filePath.toAbsolutePath().toString();
+            } catch (IOException ex) {
+                throw new IOException("Could not store file " + fileName + ". Please try again!", ex);
+            }
+
             // save image to angular project directory
 
-            Path angularUploadDir = Paths.get("C:", "Users","Mohamed","Desktop","Malek","learning","ngZoroLearning", "src", "assets", "images");
+            Path angularUploadDir = Paths.get("C:", "Users","Mohamed","Desktop","Malek","internship","angular","jobFinder", "src", "assets", "images");
             if (!Files.exists(angularUploadDir)) {
                 Files.createDirectories(angularUploadDir);
             }
@@ -252,6 +282,92 @@ public class UserService implements IUserService{
                 .build();
     }
 
+    @Override
+    public List<UserDTO> getAllUsers() {
+        List<User> users=userRepository.findAll();
+
+        return users.stream()
+                .map(user -> new UserDTO().fromEntityToDTO(user))
+                .collect(Collectors.toList());
+
+    }
+
+    @Override
+    public boolean checkCompanyName(String companyName) {
+        System.out.println("check company name start");
+        return this.userRepository.existsByCompanyName(companyName);
+
+    }
+
+    @Override
+    public boolean checkEmailUser(String userEmail) {
+        System.out.println("check user email start");
+        return this.userRepository.existsByEmail(userEmail);
+    }
+
+
+    //PDF
+
+
+
+
+    /*
+    public String htmlToPdf(String processedHtml){
+        ByteArrayOutputStream byteArrayOutputStream= new ByteArrayOutputStream();
+        try{
+            PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
+            DefaultFontProvider defaultFontProvider = new DefaultFontProvider(false, true,false);
+            ConverterProperties converterProperties = new ConverterProperties();
+
+            converterProperties.setFontProvider(defaultFontProvider);
+            //convert Html into pdf
+            HtmlConverter.convertToPdf(processedHtml,pdfWriter,converterProperties);
+
+            FileOutputStream fileOutputStream = new FileOutputStream("C:/Users/Mohamed/Desktop/Malek/internship/angular/jobFinder/src/assets/files/cv.pdf");
+
+            byteArrayOutputStream.writeTo(fileOutputStream);
+            byteArrayOutputStream.close();
+
+            byteArrayOutputStream.flush();
+            fileOutputStream.close();
+            return null;
+        }catch (Exception ex){
+
+        }
+        return null;
+    }
+
+    */
+
+    /*
+    private String parseThymleafTemplate(HttpServletRequest request){
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode(TemplateMode.HTML);
+
+        TemplateEngine templateEngine = new TemplateEngine();
+        templateEngine.setTemplateResolver(templateResolver);
+
+
+        UserDTO user = getUserInfo(request);
+        List<SkillDTO> skills = skillsService.getUserSkills(request);
+        List<EducationDTO> educations= educationService.getUserEducation(request);
+        List<ExperienceDTO> experiences= experienceService.getUserExperiences(request);
+
+
+        Context context = new Context();
+        context.setVariable("userInfo", user);
+        context.setVariable("educations", educations);
+        context.setVariable("skills", skills);
+        context.setVariable("experiences", experiences);
+
+        String htmlContent = templateEngine.process("pdf-template",context);
+
+
+
+    }
+
+     */
 
 
 

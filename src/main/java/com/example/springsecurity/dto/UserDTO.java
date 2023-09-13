@@ -21,6 +21,10 @@ public class UserDTO {
     private String photo;
     private LocalDateTime created_at;
     private Integer phone;
+    private String companyName;
+    private String adresse;
+    private String aboutMe;
+
 
     public static UserDTO fromEntityToDTO(User user){
 
@@ -33,6 +37,9 @@ public class UserDTO {
                 .photo(user.getPhoto())
                 .created_at(user.getCreated_at())
                 .phone(user.getPhone())
+                .companyName(user.getCompanyName())
+                .adresse(user.getAdresse())
+                .aboutMe(user.getAboutMe())
                 .build();
 
         return userDTO;
@@ -49,6 +56,8 @@ public class UserDTO {
                 .photo(userDTO.getPhoto())
                 .created_at(userDTO.getCreated_at())
                 .phone(userDTO.getPhone())
+                .companyName(userDTO.getCompanyName())
+                .adresse(userDTO.getAdresse())
                 .build();
         return user;
 

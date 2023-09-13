@@ -47,10 +47,44 @@ public class User implements UserDetails {
 
     private Integer phone;
 
+    private String companyName;
+
+    private String adresse;
+
+    private String aboutMe;
+
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Token> tokens;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private List<Experience> experiences;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private List<Education> educations;
+
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private List<Skill> skills;
+
+    @ManyToMany
+    @JsonIgnore
+    private List<Job> jobs;
+
+    @OneToMany(mappedBy = "company")
+    @JsonIgnore
+    private List<Job> companyJobs;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<SavedJob> savedJobs ;
+
+
+
 
 
     //getAuthorities = returns a list of roles
