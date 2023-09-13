@@ -37,11 +37,11 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**","/user/forgot-password","/user/set-password","/user/checkCompanyName","/user/checkUserEmail","/job/getJobs")
+                .requestMatchers("/auth/**","/user/forgot-password","/user/set-password","/user/checkCompanyName","/user/checkUserEmail","/job/getJobs","/job/fetchJobsBySkills","/job/serachJobs")
                     .permitAll()
                 //.requestMatchers("/management/**").hasAnyRole(ADMIN.name(), MANAGER.name())
                 .requestMatchers("/management/**","/user/**").hasAnyAuthority("ADMIN", "COMPANY","USER")
-                .requestMatchers("/skills/**","/experience/**","/education/**","/cv/**","/savedJobs/**","/job/applyJob","/job/getUserAppliedJobs").hasAnyAuthority("USER")
+                .requestMatchers("/skills/**","/experience/**","/education/**","/cv/**","/savedJobs/**","/job/applyJob","/job/getUserAppliedJobs","/jobAlert/**").hasAnyAuthority("USER")
                 .requestMatchers("/job/**").hasAuthority("COMPANY")
                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
 

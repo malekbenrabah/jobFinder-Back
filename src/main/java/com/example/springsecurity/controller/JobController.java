@@ -2,6 +2,9 @@ package com.example.springsecurity.controller;
 
 import com.example.springsecurity.dto.JobDTO;
 import com.example.springsecurity.entity.Job;
+import com.example.springsecurity.entity.JobType;
+import com.example.springsecurity.entity.Sector;
+import com.example.springsecurity.entity.Skill;
 import com.example.springsecurity.service.Job.ApplyJobResponse;
 import com.example.springsecurity.service.Job.IJobService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,7 +59,22 @@ public class JobController {
         return jobService.getUserAppliedJobs(request);
     }
 
+    @GetMapping("/fetchJobsBySkills")
+    public List<JobDTO> fetchJobsBySkills(@RequestParam("skills") List<String> skills){
+        return  jobService.fetchJobsBySkills(skills);
+    }
 
+    @GetMapping("/serachJobs")
+    public List<JobDTO> serachJobs(@RequestParam(value="title",required = false)String title,
+                                   @RequestParam(value="description",required = false)String description,
+                                   @RequestParam(value="jobType",required = false)JobType jobType,
+                                   @RequestParam(value="experience",required = false)Integer experience,
+                                   @RequestParam(value="location",required = false)String location,
+                                   @RequestParam(value="sector",required = false)Sector sector,
+                                   @RequestParam(value="diploma",required = false)String diploma,
+                                   @RequestParam(value = "skills", required = false) List<String> skills){
+        return jobService.serachJobs(title,description,jobType,experience,location,sector,diploma,skills);
+    }
 
 
 

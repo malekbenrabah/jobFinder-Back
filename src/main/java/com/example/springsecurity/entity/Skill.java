@@ -29,10 +29,4 @@ public class Skill {
     @JsonIgnore
     private Job job;
 
-
-
-
-
-
-
 }

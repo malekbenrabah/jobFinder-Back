@@ -47,7 +47,7 @@ public class Job {
     private User company;
 
 
-    @OneToMany(mappedBy = "job",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "job",fetch = FetchType.EAGER)
     private List<Skill> skills;
 
 

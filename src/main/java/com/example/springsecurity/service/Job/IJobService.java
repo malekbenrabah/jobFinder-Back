@@ -1,8 +1,7 @@
 package com.example.springsecurity.service.Job;
 
 import com.example.springsecurity.dto.JobDTO;
-import com.example.springsecurity.entity.Experience;
-import com.example.springsecurity.entity.Job;
+import com.example.springsecurity.entity.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -23,5 +22,9 @@ public interface IJobService {
 
     public List<JobDTO> getUserAppliedJobs(HttpServletRequest request);
 
+    public List<JobDTO> fetchJobsBySkills(List<String> skills);
 
+    public List<JobDTO> serachJobs(String title, String description, JobType jobType,
+                                   Integer experience, String location, Sector sector,
+                                   String diploma,List<String> skills);
 }

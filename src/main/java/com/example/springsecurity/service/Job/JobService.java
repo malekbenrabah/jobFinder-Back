@@ -9,8 +9,13 @@ import com.example.springsecurity.repository.JobRepository;
 import com.example.springsecurity.repository.SkillRepository;
 import com.example.springsecurity.repository.UserRepository;
 import com.example.springsecurity.service.IUserService;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
@@ -106,32 +111,25 @@ public class JobService  implements IJobService{
             }
         }
 
-        // Add new skills
+        // add new skills
         List<Skill> newSkills = new ArrayList<>();
         if (jobSkills != null) {
             for (Skill skill : jobSkills) {
                 if (skill.getId() == null) {
-                    // If skill doesn't have an ID, it's a new skill to be added
+                    // if skill doesn't have an ID, it's a new skill to be added
                     Skill newSkill = new Skill();
                     newSkill.setSkill(skill.getSkill());
                     newSkill.setJob(job);
-                    skillRepository.save(newSkill); // Save the new skill
+                    skillRepository.save(newSkill);
                     newSkills.add(newSkill);
                 }
             }
         }
 
-        // Add new skills to the existing skills list
+        // add new skills to the existing skills list
         job.getSkills().addAll(newSkills);
 
-
-
-
-
-
-
         jobRepository.save(job);
-
         return jobDTO.fromEntityToDTO(job);
 
 
@@ -212,9 +210,61 @@ public class JobService  implements IJobService{
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<JobDTO> fetchJobsBySkills(List<String> skills) {
+        List<Job> jobs = jobRepository.fetchJobsBySkills(skills);
+        return jobs.stream()
+                .map(job -> new JobDTO().fromEntityToDTO(job))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<JobDTO> serachJobs(String title, String description, JobType jobType, Integer experience,
+                                   String location, Sector sector, String diploma,List<String> skills) {
+
+        List<Job> jobs = jobRepository.findAll((Specification<Job>) (root, cq, cb) -> {
+            Predicate p = cb.conjunction();
+            if (title != null) {
+                p = cb.and(p, cb.like(root.get("title"), "%" + title + "%"));
+            }
+
+            if (description != null) {
+                p = cb.and(p, cb.like(root.get("description"), "%" + description + "%"));
+            }
+
+            if (jobType != null) {
+                p = cb.and(p, cb.equal(root.get("jobType"), jobType));
+            }
+            if (experience != null) {
+                p = cb.and(p, cb.equal(root.get("experience"), experience));
+            }
+            if (location!= null) {
+                p = cb.and(p, cb.equal(root.get("location"),location ));
+            }
+            if (sector != null) {
+                p = cb.and(p, cb.equal(root.get("sector"), sector));
+            }
+            if (diploma != null) {
+                p = cb.and(p, cb.equal(root.get("diploma"), diploma));
+            }
+            if (skills != null && !skills.isEmpty()) {
+                Join<Job, Skill> skillJoin = root.join("skills", JoinType.INNER);
+                Expression<String> skillExpression = skillJoin.get("skill");
+                Predicate skillPredicate = skillExpression.in(skills);
+                p = cb.and(p, skillPredicate);
+            }
+
+            cq.orderBy(cb.desc(root.get("created_at")));
+            return p;
+        });
 
 
+        return jobs.stream()
+                .map(job -> new JobDTO().fromEntityToDTO(job))
+                .collect(Collectors.toList());
 
+
+    }
 
 
 }
