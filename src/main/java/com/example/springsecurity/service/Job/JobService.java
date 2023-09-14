@@ -157,7 +157,7 @@ public class JobService  implements IJobService{
 
     @Override
     public List<JobDTO> getJobs() {
-        List<Job> jobs = jobRepository.findAll();
+        List<Job> jobs = jobRepository.findJobsDesc();
 
         return jobs.stream()
                 .map(job -> new JobDTO().fromEntityToDTO(job))
@@ -264,6 +264,12 @@ public class JobService  implements IJobService{
                 .collect(Collectors.toList());
 
 
+    }
+
+    @Override
+    public JobDTO getJobById(Integer id) {
+        Job job = jobRepository.findById(id).get();
+        return JobDTO.fromEntityToDTO(job);
     }
 
 

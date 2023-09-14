@@ -76,6 +76,11 @@ public class JobController {
         return jobService.serachJobs(title,description,jobType,experience,location,sector,diploma,skills);
     }
 
+    @GetMapping("/findJobById")
+    public JobDTO getJobById(@RequestParam("id") Integer id){
+        return jobService.getJobById(id);
+    }
+
 
 
 

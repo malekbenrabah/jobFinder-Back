@@ -14,6 +14,10 @@ import java.util.List;
 @Repository
 public interface JobRepository extends JpaRepository<Job, Integer> {
 
+
+    @Query("select j from Job j order by j.created_at desc ")
+    public List<Job> findJobsDesc();
+
     public List<Job> findByCompany(User user);
 
     public List<Job> findByUsers(User user);

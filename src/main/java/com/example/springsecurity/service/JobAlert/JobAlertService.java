@@ -17,11 +17,19 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.encoder.QRCode;
+import jakarta.activation.DataHandler;
+import jakarta.activation.FileDataSource;
+import jakarta.mail.BodyPart;
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import jakarta.servlet.http.HttpServletRequest;
+import org.aspectj.apache.bcel.classfile.ClassParser;
+import org.aspectj.apache.bcel.util.ClassPath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -33,9 +41,13 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.imageio.ImageIO;
+import javax.sql.DataSource;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -180,36 +192,171 @@ public class JobAlertService implements IJobAlertService{
                 .collect(Collectors.toList());
     }
 
-    @Scheduled(cron = "0 */3 * * * *")
-    //@Scheduled(cron = "0 0 0 * * ?")
+    //@Scheduled(cron = "0 */3 * * * *")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void sendAlert() throws MessagingException {
         System.out.println("send job alert begin");
         List<JobAlert> jobAlerts=jobAlertRepository.findAll();
         List<Job> jobs=jobRepository.findAll();
         for (JobAlert jobAlert: jobAlerts) {
-            for (Job job: jobs) {
-                System.out.println("-----------------comparing dates-----------------------");
-                if( job.getCreated_at().isAfter(jobAlert.getCreated_at()) ){
-                    List<String> jobSkills = job.getSkills().stream()
-                            .map(Skill::getSkill)
-                            .sorted()
-                            .collect(Collectors.toList());
+            if(!jobAlert.getSent()){
+                for (Job job: jobs) {
+                    System.out.println("-----------------comparing dates-----------------------");
+                    if( job.getCreated_at().isAfter(jobAlert.getCreated_at()) ){
+                        List<String> jobSkills = job.getSkills().stream()
+                                .map(Skill::getSkill)
+                                .sorted()
+                                .collect(Collectors.toList());
 
-                    List<String> jobAlertSkills = jobAlert.getSkills().stream()
-                            .map(Skill::getSkill)
-                            .sorted()
-                            .collect(Collectors.toList());
+                        List<String> jobAlertSkills = jobAlert.getSkills().stream()
+                                .map(Skill::getSkill)
+                                .sorted()
+                                .collect(Collectors.toList());
 
-                    if (jobSkills.containsAll(jobAlertSkills)) {
-                        System.out.println("sending email to..." + jobAlert.getUser().getEmail());
-                        //jobAlert.setSent(true);
-                        //sendJobAlertEmail(jobAlert.getUser().getEmail());
+                        if (jobSkills.containsAll(jobAlertSkills) && job.getJobType().equals(jobAlert.getJobType()) && job.getLocation().equals(jobAlert.getLocation()) && job.getExperience().equals(jobAlert.getExperience()) ) {
+                            System.out.println("sending email to..." + jobAlert.getUser().getEmail());
+                            //jobAlert.setSent(true);
+                            //sendJobAlertEmail(jobAlert.getUser().getEmail());
+                            jobAlert.setSent(true);
+                            jobAlertRepository.save(jobAlert);
+                            sendingJobALertMail(jobAlert.getUser().getEmail(), job);
 
-                        sendEmail(jobAlert.getUser().getEmail(), job);
+                        }
+
                     }
-
                 }
             }
+
+        }
+    }
+
+    private void sendingJobALertMail(String email , Job job)throws MessagingException{
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+        try {
+
+            String fromEmail= env.getProperty("spring.mail.username");
+            messageHelper.setFrom(fromEmail);
+            messageHelper.setTo(email);
+            messageHelper.setSubject("JobFinder - new matching job");
+
+            //QRCode
+            String qrCodeUrl = "http://localhost:4200/job-detail/" + job.getId();
+            int width = 200;
+            int height = 200;
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeUrl, BarcodeFormat.QR_CODE, width, height);
+
+            String qrCodeFileName = "qr_code_" + job.getId() + ".png";
+            String qrCodeFilePath = "C:\\Users\\Mohamed\\Desktop\\Malek\\learning\\springSecurity\\src\\main\\resources\\static\\images\\" + qrCodeFileName;
+
+            //save the qrcode img to the file
+            File qrCodeFile = new File(qrCodeFilePath);
+            MatrixToImageWriter.writeToPath(bitMatrix, "PNG", qrCodeFile.toPath());
+
+
+            Context thymeleafContext = new Context();
+            thymeleafContext.setVariable("job", job);
+
+
+            String emailContent = templateEngine.process("jobEmail.html", thymeleafContext);
+            messageHelper.setText(emailContent, true);
+
+
+            ClassPathResource resource = new ClassPathResource("static/images/qr_code_" + job.getId() + ".png");
+            messageHelper.addInline("qrCodeImage", resource);
+
+
+            javaMailSender.send(mimeMessage);
+
+
+        }catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to send email");
+        }
+    }
+
+    private void sendEmail2(String email,Job job) throws MessagingException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+        try {
+            //setting email parameters
+            String fromEmail= env.getProperty("spring.mail.username");
+            messageHelper.setFrom(fromEmail);
+            messageHelper.setTo(email);
+            messageHelper.setSubject("JobFinder - new matching job");
+
+
+            //generate  qrcode
+            String qrCodeUrl = "http://localhost:4200/job-detail/" + job.getId();
+            int width = 200;
+            int height = 200;
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeUrl, BarcodeFormat.QR_CODE, width, height);
+
+            String qrCodeFileName = "qr_code_" + job.getId() + ".png";
+            String qrCodeFilePath = "C:\\Users\\Mohamed\\Desktop\\Malek\\learning\\springSecurity\\src\\main\\resources\\qr_codes\\" + qrCodeFileName;
+
+            //save the qrcode img to the file
+            File qrCodeFile = new File(qrCodeFilePath);
+            MatrixToImageWriter.writeToPath(bitMatrix, "PNG", qrCodeFile.toPath());
+
+
+            //String qrPath = "C:/Users/Mohamed/Desktop/Malek/learning/springSecurity/src/main/resources/qr_codes/" + qrCodeFileName;
+            String qrPath = "qr_codes/qr_code_" + job.getId() + ".png";
+            System.out.println("qrPath: "+qrPath);
+
+            String mailContent="<p>Job title"+job.getTitle()+"</p>";
+            mailContent+="<p>Job location"+job.getLocation()+"</p>";
+            mailContent+="<p>Job Type"+job.getJobType()+"</p>";
+            mailContent+="<img src='cid:logoImage' />";
+
+            messageHelper.setText(mailContent, true);
+
+            ClassPathResource resource = new ClassPathResource("/static/images/qr_code_17.png");
+            messageHelper.addInline("logoImage", resource);
+
+            javaMailSender.send(mimeMessage);
+
+
+            /*
+            //creating context object for Thymeleaf
+            Context context = new Context();
+
+
+            context.setVariable("job",job);
+            String qrCodeBase64 = encodeImageToBase64(qrCodeFilePath);
+            context.setVariable("qrCodeBase64", qrCodeBase64);
+
+
+
+            //using Thymeleaf to process email template with context object
+            String text = templateEngine.process("jobEmail.html", context);
+
+            //adding attachment
+            MimeMultipart mimeMultipart = new MimeMultipart("related");
+            BodyPart messagebodyPart =  new MimeBodyPart();
+            messagebodyPart.setContent(text,"text/html");
+            mimeMultipart.addBodyPart(messagebodyPart);
+
+            //add images to the emmail body
+            BodyPart imagebodyPart =  new MimeBodyPart();
+            DataSource ds = (DataSource) new FileDataSource("C:/Users/Mohamed/Desktop/Malek/learning/springSecurity/src/main/resources/qr_codes/" + qrCodeFileName);
+            imagebodyPart.setDataHandler(new DataHandler((jakarta.activation.DataSource) ds));
+            imagebodyPart.setHeader("Content-ID","image");
+            mimeMultipart.addBodyPart(imagebodyPart);
+
+            mimeMessage.setContent(mimeMultipart);
+
+            //messageHelper.setText(text, true);
+            //sending email
+            javaMailSender.send(mimeMessage);
+            */
+
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to send email");
         }
     }
 
@@ -269,20 +416,29 @@ public class JobAlertService implements IJobAlertService{
             MatrixToImageWriter.writeToPath(bitMatrix, "PNG", qrCodeFile.toPath());
 
 
+            //String qrPath = "C:/Users/Mohamed/Desktop/Malek/learning/springSecurity/src/main/resources/qr_codes/" + qrCodeFileName;
+            String qrPath = "qr_codes/qr_code_" + job.getId() + ".png";
+            System.out.println("qrPath: "+qrPath);
             //creating context object for Thymeleaf
             Context thymeleafContext = new Context();
 
 
             thymeleafContext.setVariable("job",job);
-            thymeleafContext.setVariable("qrCodeFilePath", qrCodeFilePath);
+            String qrCodeBase64 = encodeImageToBase64(qrCodeFilePath);
+            thymeleafContext.setVariable("qrCodeBase64", qrCodeBase64);
+
+            //thymeleafContext.setVariable("qrPath", qrPath);
 
             //thymeleafContext.setVariable("qrCodeImage",qrCodeBase64 );
 
             //using Thymeleaf to process email template with context object
             String htmlBody = templateEngine.process("jobEmail.html", thymeleafContext);
+
+
+
+
+
             messageHelper.setText(htmlBody, true);
-
-
             //sending email
             javaMailSender.send(mimeMessage);
 
@@ -291,6 +447,10 @@ public class JobAlertService implements IJobAlertService{
         }
     }
 
+    private String encodeImageToBase64(String imagePath) throws  IOException {
+        byte[] imageBytes = Files.readAllBytes(Path.of(imagePath));
+        return Base64.getEncoder().encodeToString(imageBytes);
+    }
 
     private void sendEmail1(String email,Job job) throws MessagingException {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();

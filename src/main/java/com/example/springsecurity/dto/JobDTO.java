@@ -36,12 +36,25 @@ public class JobDTO {
 
     private List<SkillDTO> skills;
 
-    private UserDTO companyName;
+    private String companyName;
+
+    private String companyEmail;
+
+    private String companyAbout;
+
+    private String companyPhoto;
 
     private List<UserDTO> users;
 
 
     public static JobDTO fromEntityToDTO(Job job){
+
+
+        String companyName = job.getCompany() != null ? job.getCompany().getCompanyName(): null;
+        String companyPhoto = job.getCompany() != null ? job.getCompany().getPhoto(): null;
+        String companyEmail = job.getCompany() != null ? job.getCompany().getEmail(): null;
+        String companyAbout = job.getCompany() != null ? job.getCompany().getAboutMe(): null;
+
 
         JobDTO.JobDTOBuilder jobDTO = JobDTO.builder()
 
@@ -55,7 +68,10 @@ public class JobDTO {
                 .deadline(job.getDeadline())
                 .sector(job.getSector())
                 .diploma(job.getDiploma())
-                .companyName(new UserDTO().fromEntityToDTO(job.getCompany()));
+                .companyName(companyName)
+                .companyPhoto(companyPhoto)
+                .companyEmail(companyEmail)
+                .companyAbout(companyAbout);
 
             if (job.getUsers() != null) {
                 jobDTO.users(job.getUsers()
@@ -86,8 +102,7 @@ public class JobDTO {
                 .location(jobDTO.getLocation())
                 .deadline(jobDTO.getDeadline())
                 .sector(jobDTO.getSector())
-                .diploma(jobDTO.getDiploma())
-                .company(new UserDTO().fromDTOtoEntity(jobDTO.getCompanyName()));
+                .diploma(jobDTO.getDiploma());
 
         if (jobDTO.getUsers() != null) {
             job.users(jobDTO.getUsers()

@@ -27,4 +27,6 @@ public interface IJobService {
     public List<JobDTO> serachJobs(String title, String description, JobType jobType,
                                    Integer experience, String location, Sector sector,
                                    String diploma,List<String> skills);
+
+    public JobDTO getJobById(Integer id);
 }
