@@ -29,4 +29,6 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
 
     List<Job> findAll(Specification<Job> spec);
 
+
+
 }

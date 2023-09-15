@@ -5,6 +5,8 @@ import com.example.springsecurity.entity.Job;
 import com.example.springsecurity.entity.JobType;
 import com.example.springsecurity.entity.Sector;
 import com.example.springsecurity.entity.Skill;
+import com.example.springsecurity.exception.InvalidOldPasswordException;
+import com.example.springsecurity.exception.UpdatePasswordResponse;
 import com.example.springsecurity.service.Job.ApplyJobResponse;
 import com.example.springsecurity.service.Job.IJobService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,7 +46,16 @@ public class JobController {
 
     @PostMapping("/applyJob")
     public ResponseEntity<ApplyJobResponse> applyJob(@NonNull HttpServletRequest request, @RequestParam("id") Integer id) {
-        return ResponseEntity.ok(this.jobService.applyJob(request, id));
+
+        try{
+            return ResponseEntity.ok(this.jobService.applyJob(request, id));
+        }catch (InvalidOldPasswordException ex){
+            return ResponseEntity.badRequest().body(ApplyJobResponse.builder()
+                    .success(false)
+                    .message(ex.getMessage())
+                    .build());
+
+        }
 
     }
 
@@ -82,6 +93,20 @@ public class JobController {
     }
 
 
+    @GetMapping("/getSimilarJobs")
+    public List<JobDTO> similarJobs(@RequestParam("id") Integer id){
+        return jobService.similarJobs(id);
+    }
+
+    @GetMapping("/companyJobs")
+    public List<JobDTO> companyJobs(@RequestParam("email")String email){
+        return jobService.companyJobs(email);
+    }
+
+    @GetMapping("/companyOpenJobs")
+    public List<JobDTO> companyOpenJobs(@RequestParam("email")String email){
+        return jobService.companyOpenJobs(email);
+    }
 
 
 

@@ -4,11 +4,13 @@ import com.example.springsecurity.dto.ExperienceDTO;
 import com.example.springsecurity.dto.JobDTO;
 import com.example.springsecurity.dto.SkillDTO;
 import com.example.springsecurity.entity.*;
+import com.example.springsecurity.exception.InvalidOldPasswordException;
 import com.example.springsecurity.exception.ResetPasswordResponse;
 import com.example.springsecurity.repository.JobRepository;
 import com.example.springsecurity.repository.SkillRepository;
 import com.example.springsecurity.repository.UserRepository;
 import com.example.springsecurity.service.IUserService;
+import com.example.springsecurity.service.JobAlert.UserAlreadyAppliedException;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
@@ -175,6 +177,10 @@ public class JobService  implements IJobService{
 
         Job job = jobRepository.findById(id).get();
 
+        if(job.getUsers().contains(user)){
+            throw new UserAlreadyAppliedException("You have already applied to this job");
+
+        }
         job.getUsers().add(user);
         user.getJobs().add(job);
         userRepository.save(user);
@@ -270,6 +276,61 @@ public class JobService  implements IJobService{
     public JobDTO getJobById(Integer id) {
         Job job = jobRepository.findById(id).get();
         return JobDTO.fromEntityToDTO(job);
+    }
+
+    @Override
+    public List<JobDTO> similarJobs(Integer id) {
+        List<Job> jobs=jobRepository.findAll();
+        Job job = jobRepository.findById(id).get();
+        List<Job> similarJobs= new ArrayList<>();
+        for (Job j:jobs) {
+            List<String> jobSkills = job.getSkills().stream()
+                    .map(Skill::getSkill)
+                    .sorted()
+                    .collect(Collectors.toList());
+
+            List<String> comparedSkills = j.getSkills().stream()
+                    .map(Skill::getSkill)
+                    .sorted()
+                    .collect(Collectors.toList());
+
+
+            if (jobSkills.containsAll(comparedSkills) && job.getJobType().equals(j.getJobType()) && job.getSector().equals(j.getSector()) && job.getId()!=j.getId()) {
+                similarJobs.add(j);
+            }
+        }
+        return similarJobs.stream()
+                .map(similarJob -> new JobDTO().fromEntityToDTO(similarJob))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<JobDTO> companyJobs(String email){
+
+        User user= userRepository.findUserByEmail(email);
+        
+        List<Job> jobs= jobRepository.findAll();
+        List<Job> companyJobs=new ArrayList<>();
+        for (Job j:jobs) {
+            if(j.getCompany().equals(user)){
+                companyJobs.add(j);
+            }
+        }
+        return companyJobs.stream()
+                .map(companyJob -> new JobDTO().fromEntityToDTO(companyJob))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<JobDTO> companyOpenJobs(String email) {
+        List<JobDTO> companyJobs=companyJobs(email);
+        List<JobDTO>openJobs=new ArrayList<>();
+        for (JobDTO jobDTO:companyJobs) {
+            if(jobDTO.getDeadline().isAfter(LocalDateTime.now())){
+                openJobs.add(jobDTO);
+            }
+        }
+        return openJobs;
     }
 
 

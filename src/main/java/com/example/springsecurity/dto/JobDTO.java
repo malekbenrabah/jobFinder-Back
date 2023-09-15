@@ -40,6 +40,10 @@ public class JobDTO {
 
     private String companyEmail;
 
+    private Integer companyPhone;
+
+    private String companyAdresse;
+
     private String companyAbout;
 
     private String companyPhoto;
@@ -54,6 +58,9 @@ public class JobDTO {
         String companyPhoto = job.getCompany() != null ? job.getCompany().getPhoto(): null;
         String companyEmail = job.getCompany() != null ? job.getCompany().getEmail(): null;
         String companyAbout = job.getCompany() != null ? job.getCompany().getAboutMe(): null;
+        Integer companyPhone = job.getCompany() != null ? job.getCompany().getPhone(): null;
+        String companyAdresse = job.getCompany() != null ? job.getCompany().getAdresse(): null;
+
 
 
         JobDTO.JobDTOBuilder jobDTO = JobDTO.builder()
@@ -71,7 +78,9 @@ public class JobDTO {
                 .companyName(companyName)
                 .companyPhoto(companyPhoto)
                 .companyEmail(companyEmail)
-                .companyAbout(companyAbout);
+                .companyAbout(companyAbout)
+                .companyPhone(companyPhone)
+                .companyAdresse(companyAdresse);
 
             if (job.getUsers() != null) {
                 jobDTO.users(job.getUsers()

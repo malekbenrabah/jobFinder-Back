@@ -29,4 +29,9 @@ public interface IJobService {
                                    String diploma,List<String> skills);
 
     public JobDTO getJobById(Integer id);
+    public List<JobDTO> similarJobs(Integer id);
+
+    public List<JobDTO> companyJobs(String email);
+    public List<JobDTO> companyOpenJobs(String email);
+
 }
