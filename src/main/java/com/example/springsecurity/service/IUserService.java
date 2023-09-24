@@ -25,6 +25,7 @@ public interface IUserService {
 
     UserDTO updateUser(HttpServletRequest request,UserDTO userDTO,MultipartFile photo) throws IOException;
 
+    UserDTO updateUserInfo(HttpServletRequest request,UserDTO userDTO);
     UpdatePasswordResponse updatePassword(HttpServletRequest request, String oldPass, String newPass);
 
     ForgotPasswordResponse forgotPassword(String email) throws MessagingException;
@@ -39,5 +40,9 @@ public interface IUserService {
     boolean checkEmailUser(String userEmail);
 
     public User getUserByToken(HttpServletRequest request);
+
+    List<UserDTO> getCompanies();
+
+    Integer nbUsers();
 
 }

@@ -14,7 +14,10 @@ public interface IJobService {
 
     public void deleteJob(HttpServletRequest request, Integer id);
 
+    public void deleteJobSkill(Integer id,Integer skillId);
     public List<JobDTO> getJobs();
+
+    public Integer nbJobs();
 
     public ApplyJobResponse applyJob(HttpServletRequest request, Integer id);
 
@@ -24,8 +27,8 @@ public interface IJobService {
 
     public List<JobDTO> fetchJobsBySkills(List<String> skills);
 
-    public List<JobDTO> serachJobs(String title, String description, JobType jobType,
-                                   Integer experience, String location, Sector sector,
+    public List<JobDTO> searchJobs(String title, String description, JobType jobType,
+                                   String experience, String location, Sector sector,
                                    String diploma,List<String> skills);
 
     public JobDTO getJobById(Integer id);

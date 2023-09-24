@@ -6,6 +6,7 @@ import com.example.springsecurity.dto.UserDTO;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.exception.*;
 import com.example.springsecurity.service.IUserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.DocumentException;
 import jakarta.mail.MessagingException;
@@ -70,6 +71,13 @@ public class UserController {
         return userService.updateUser(request, userDTO, photo);
     }
 
+    @PutMapping("/updateUserInfo")
+    public UserDTO updateUserInfo(@NonNull HttpServletRequest request, @RequestParam("user") String userJSON) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserDTO userDTO = objectMapper.readValue(userJSON, UserDTO.class);
+
+        return userService.updateUserInfo(request, userDTO);
+    }
 
     @PutMapping("/updatePass")
     public ResponseEntity<UpdatePasswordResponse> updatePassword(@NonNull HttpServletRequest request,
@@ -133,7 +141,15 @@ public class UserController {
         return userService.checkEmailUser(userEmail);
     }
 
+    @GetMapping("/getCompanies")
+    public List<UserDTO> getCompanies(){
+        return userService.getCompanies();
+    }
 
+    @GetMapping("/nbUsers")
+    public Integer nbUsers() {
+        return  userService.nbUsers();
+    }
 
 
 

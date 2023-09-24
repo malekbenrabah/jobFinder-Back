@@ -1,5 +1,6 @@
 package com.example.springsecurity.auth;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,10 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AutenticationResponse {
-    private String token; // token which will be sent back to the customer
+public class checkTokenResponse {
+
     private boolean success;
     private String message;
-
-
 }

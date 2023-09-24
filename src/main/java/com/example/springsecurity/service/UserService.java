@@ -2,10 +2,7 @@ package com.example.springsecurity.service;
 
 import com.example.springsecurity.config.ApplicationConfig;
 import com.example.springsecurity.config.JwtService;
-import com.example.springsecurity.dto.EducationDTO;
-import com.example.springsecurity.dto.ExperienceDTO;
-import com.example.springsecurity.dto.SkillDTO;
-import com.example.springsecurity.dto.UserDTO;
+import com.example.springsecurity.dto.*;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.exception.*;
 import com.example.springsecurity.service.Education.IEducationService;
@@ -97,6 +94,20 @@ public class UserService implements IUserService{
         return user;
     }
 
+    @Override
+    public List<UserDTO> getCompanies() {
+        List<User> users=userRepository.findByCompanyNameNotNull();
+
+        return users.stream()
+                .map(user -> new UserDTO().fromEntityToDTO(user))
+                .collect(Collectors.toList());
+
+    }
+
+    @Override
+    public Integer nbUsers() {
+        return userRepository.getNbUsers();
+    }
 
 
     @Override
@@ -124,7 +135,18 @@ public class UserService implements IUserService{
         return UserDTO.fromEntityToDTO(user);
     }
 
-
+    @Override
+    public UserDTO updateUserInfo(HttpServletRequest request, UserDTO userDTO) {
+        User user= getUserByToken(request);
+        user.setFirstname(userDTO.getFirstname());
+        user.setLastname(userDTO.getLastname());
+        user.setPhone(userDTO.getPhone());
+        user.setCompanyName(userDTO.getCompanyName());
+        user.setAdresse(userDTO.getAdresse());
+        user.setAboutMe(userDTO.getAboutMe());
+        userRepository.save(user);
+        return UserDTO.fromEntityToDTO(user);
+    }
 
 
     public String storeImage(MultipartFile profileImage) throws IOException {

@@ -11,6 +11,10 @@ public enum Sector {
     biology,
     law,
     media,
+
+    marketing,
+    rh,
+    architecture,
     others,
 
 

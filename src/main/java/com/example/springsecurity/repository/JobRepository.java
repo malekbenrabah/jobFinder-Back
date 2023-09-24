@@ -20,6 +20,10 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
 
     public List<Job> findByCompany(User user);
 
+    @Query("SELECT j FROM Job  j where j.company=:user " +
+            "ORDER BY  j.created_at desc ")
+    public List<Job> fetchCompanyJobs(@Param("user") User user);
+
     public List<Job> findByUsers(User user);
 
     @Query("SELECT DISTINCT j FROM Job j " +

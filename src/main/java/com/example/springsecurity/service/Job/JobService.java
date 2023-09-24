@@ -158,6 +158,21 @@ public class JobService  implements IJobService{
     }
 
     @Override
+    public void deleteJobSkill(Integer id, Integer skillId) {
+        Job job = jobRepository.findById(id).get();
+
+
+        List<Skill> jobSkills= job.getSkills();
+        for (Skill skill:jobSkills) {
+
+            if(skill.getId().equals(skillId)){
+                skillRepository.delete(skill);
+            }
+
+        }
+    }
+
+    @Override
     public List<JobDTO> getJobs() {
         List<Job> jobs = jobRepository.findJobsDesc();
 
@@ -165,6 +180,11 @@ public class JobService  implements IJobService{
                 .map(job -> new JobDTO().fromEntityToDTO(job))
                 .collect(Collectors.toList());
 
+    }
+
+    @Override
+    public Integer nbJobs() {
+        return jobRepository.findAll().size();
     }
 
     @Override
@@ -196,7 +216,7 @@ public class JobService  implements IJobService{
     public List<JobDTO> getCompanyPostedJobs(HttpServletRequest request) {
         User user = userService.getUserByToken(request);
 
-        List<Job> jobs = jobRepository.findByCompany(user);
+        List<Job> jobs = jobRepository.fetchCompanyJobs(user);
 
         return jobs.stream()
                 .map(job -> new JobDTO().fromEntityToDTO(job))
@@ -225,7 +245,7 @@ public class JobService  implements IJobService{
     }
 
     @Override
-    public List<JobDTO> serachJobs(String title, String description, JobType jobType, Integer experience,
+    public List<JobDTO> searchJobs(String title, String description, JobType jobType, String experience,
                                    String location, Sector sector, String diploma,List<String> skills) {
 
         List<Job> jobs = jobRepository.findAll((Specification<Job>) (root, cq, cb) -> {
@@ -242,7 +262,19 @@ public class JobService  implements IJobService{
                 p = cb.and(p, cb.equal(root.get("jobType"), jobType));
             }
             if (experience != null) {
-                p = cb.and(p, cb.equal(root.get("experience"), experience));
+                if (experience.equals("Over 6 years")) {
+                    p = cb.and(p, cb.greaterThan(root.get("experience"), 6));
+                } else if (experience.equals("No experience")) {
+                    p = cb.and(p, cb.equal(root.get("experience"), 0));
+                } else {
+                    // parsing the experience range into minimum and maximum values
+                    String[] rangeParts = experience.split("-");
+                    if (rangeParts.length == 2) {
+                        int minExperience = Integer.parseInt(rangeParts[0].trim());
+                        int maxExperience = Integer.parseInt(rangeParts[1].trim());
+                        p = cb.and(p, cb.between(root.get("experience"), minExperience, maxExperience));
+                    }
+                }
             }
             if (location!= null) {
                 p = cb.and(p, cb.equal(root.get("location"),location ));

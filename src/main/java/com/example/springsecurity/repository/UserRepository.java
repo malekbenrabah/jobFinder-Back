@@ -24,6 +24,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     public Boolean existsByCompanyName(String companyName);
 
 
+    public List<User> findByCompanyNameNotNull();
 
+    @Query("select count (u) from User u " +
+            "where u.role='USER' ")
+    public Integer getNbUsers();
 
 }

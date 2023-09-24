@@ -38,11 +38,18 @@ public class JobController {
         jobService.deleteJob(request, id);
     }
 
+    @DeleteMapping("/deleteJobSkill")
+    public void deleteJobSkill(@RequestParam("id")Integer id, @RequestParam("skillId")Integer skillId){
+         jobService.deleteJobSkill(id,skillId);
+    }
 
     @GetMapping("/getJobs")
     public List<JobDTO> getJobs() {
         return jobService.getJobs();
     }
+
+    @GetMapping("/nbJobs")
+    public Integer nbJobs(){return jobService.nbJobs();}
 
     @PostMapping("/applyJob")
     public ResponseEntity<ApplyJobResponse> applyJob(@NonNull HttpServletRequest request, @RequestParam("id") Integer id) {
@@ -76,15 +83,15 @@ public class JobController {
     }
 
     @GetMapping("/serachJobs")
-    public List<JobDTO> serachJobs(@RequestParam(value="title",required = false)String title,
+    public List<JobDTO> searchJobs(@RequestParam(value="title",required = false)String title,
                                    @RequestParam(value="description",required = false)String description,
                                    @RequestParam(value="jobType",required = false)JobType jobType,
-                                   @RequestParam(value="experience",required = false)Integer experience,
+                                   @RequestParam(value="experience",required = false)String experience,
                                    @RequestParam(value="location",required = false)String location,
                                    @RequestParam(value="sector",required = false)Sector sector,
                                    @RequestParam(value="diploma",required = false)String diploma,
                                    @RequestParam(value = "skills", required = false) List<String> skills){
-        return jobService.serachJobs(title,description,jobType,experience,location,sector,diploma,skills);
+        return jobService.searchJobs(title,description,jobType,experience,location,sector,diploma,skills);
     }
 
     @GetMapping("/findJobById")
