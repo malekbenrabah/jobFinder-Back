@@ -1,5 +1,6 @@
 package com.example.springsecurity.service.Job;
 
+import com.example.springsecurity.dto.JobByMonthDTO;
 import com.example.springsecurity.dto.JobDTO;
 import com.example.springsecurity.entity.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +14,8 @@ public interface IJobService {
     public JobDTO updateJob(HttpServletRequest request,JobDTO jobDTO);
 
     public void deleteJob(HttpServletRequest request, Integer id);
+
+    public void deleteJobByAdmin(Integer id);
 
     public void deleteJobSkill(Integer id,Integer skillId);
     public List<JobDTO> getJobs();
@@ -36,5 +39,7 @@ public interface IJobService {
 
     public List<JobDTO> companyJobs(String email);
     public List<JobDTO> companyOpenJobs(String email);
+
+    public List<Object[]>getJobsByMonth();
 
 }

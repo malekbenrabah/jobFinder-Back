@@ -13,7 +13,7 @@ public interface IEducationService {
     public EducationDTO addEducation(HttpServletRequest request, Education education);
 
     public List<EducationDTO> getUserEducation(HttpServletRequest request);
-
+    public List<EducationDTO> getUserEducationByUserId(Integer id);
     public EducationDTO updateEducation(EducationDTO educationDTO);
 
     public void removeEducation(Integer id);

@@ -3,11 +3,14 @@ package com.example.springsecurity.service;
 import com.example.springsecurity.config.ApplicationConfig;
 import com.example.springsecurity.config.JwtService;
 import com.example.springsecurity.dto.*;
+import com.example.springsecurity.entity.Role;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.exception.*;
 import com.example.springsecurity.service.Education.IEducationService;
 import com.example.springsecurity.service.Experience.IExperienceService;
 import com.example.springsecurity.service.Skills.ISkillsService;
+import com.example.springsecurity.token.Token;
+import com.example.springsecurity.token.TokenRepository;
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.html2pdf.resolver.font.DefaultFontProvider;
@@ -49,6 +52,9 @@ public class UserService implements IUserService{
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    TokenRepository tokenRepository;
 
     @Autowired
     JwtService jwtService;
@@ -105,8 +111,39 @@ public class UserService implements IUserService{
     }
 
     @Override
+    public List<UserDTO> getUsers() {
+
+        List<User> users=userRepository.getUsers();
+        return users.stream()
+                .map(user -> new UserDTO().fromEntityToDTO(user))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Integer nbUsers() {
         return userRepository.getNbUsers();
+    }
+
+    @Override
+    public UserDTO getUserById(Integer id) {
+        User user= userRepository.findById(id).orElse(null);
+        return UserDTO.fromEntityToDTO(user);
+    }
+
+    @Override
+    public Role getUserRole(HttpServletRequest request) {
+        User user= getUserByToken(request);
+        return user.getRole();
+    }
+
+    @Override
+    public void deleteUser(HttpServletRequest request,Integer id) {
+        User user=userRepository.findById(id).orElse(null);
+        List<Token> tokens=tokenRepository.findAllValidTokensByUser(id);
+        for (Token jwt:tokens) {
+            tokenRepository.delete(jwt);
+        }
+        userRepository.delete(user);
     }
 
 

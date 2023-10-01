@@ -1,6 +1,7 @@
 package com.example.springsecurity.service.Job;
 
 import com.example.springsecurity.dto.ExperienceDTO;
+import com.example.springsecurity.dto.JobByMonthDTO;
 import com.example.springsecurity.dto.JobDTO;
 import com.example.springsecurity.dto.SkillDTO;
 import com.example.springsecurity.entity.*;
@@ -145,15 +146,41 @@ public class JobService  implements IJobService{
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this job");
         }
 
+
+
         Job job = jobRepository.findById(id).get();
 
         if(user.getId()!= job.getCompany().getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this job");
         }
+
         List<Skill> jobSkills= job.getSkills();
         for (Skill skill:jobSkills) {
             skillRepository.delete(skill);
         }
+
+
+        for (User u:job.getUsers()) {
+            u.getJobs().remove(job);
+        }
+        job.getUsers().clear();
+
+
+        jobRepository.delete(job);
+    }
+
+    @Override
+    public void deleteJobByAdmin(Integer id) {
+        Job job = jobRepository.findById(id).get();
+        List<Skill> jobSkills= job.getSkills();
+        for (Skill skill:jobSkills) {
+            skillRepository.delete(skill);
+        }
+        for (User u:job.getUsers()) {
+            u.getJobs().remove(job);
+        }
+        job.getUsers().clear();
+
         jobRepository.delete(job);
     }
 
@@ -363,6 +390,11 @@ public class JobService  implements IJobService{
             }
         }
         return openJobs;
+    }
+
+    @Override
+    public List<Object[]> getJobsByMonth() {
+        return  jobRepository.getJobsByMonth();
     }
 
 

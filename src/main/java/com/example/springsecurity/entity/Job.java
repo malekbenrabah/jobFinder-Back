@@ -39,7 +39,7 @@ public class Job {
     private String diploma;
 
 
-    @ManyToMany(mappedBy = "jobs")
+    @ManyToMany(mappedBy = "jobs", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<User> users;
 

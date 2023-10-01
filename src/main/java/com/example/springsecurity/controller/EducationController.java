@@ -40,4 +40,9 @@ public class EducationController {
     public List<EducationDTO> getUserEducation(HttpServletRequest request){
         return educationService.getUserEducation(request);
     }
+
+    @GetMapping("/educationsByUserId")
+    public List<EducationDTO> getUserEducationByUserId(@RequestParam("id") Integer id){
+        return educationService.getUserEducationByUserId(id);
+    }
 }

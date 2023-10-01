@@ -36,4 +36,9 @@ public class SkillController {
     public List<SkillDTO> getUserSkills(@NonNull HttpServletRequest request){
         return skillsService.getUserSkills(request);
     }
+
+    @GetMapping("/getUserSkills")
+    public List<SkillDTO> getUserSkillsById(@RequestParam("id") Integer id){
+        return  skillsService.getUserSkillsById(id);
+    }
 }

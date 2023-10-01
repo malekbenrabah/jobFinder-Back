@@ -30,6 +30,11 @@ public class ExperienceController {
         return experienceService.getUserExperiences(request);
     }
 
+    @GetMapping("/getExperienceById")
+    public List<ExperienceDTO> getUserExperiencesById(@RequestParam("id") Integer id){
+        return experienceService.getUserExperiencesById(id);
+    }
+
     @PutMapping("/updateExperience")
     public ExperienceDTO updateExperience(@RequestBody  ExperienceDTO experienceDTO){
         return experienceService.updateExperience(experienceDTO);

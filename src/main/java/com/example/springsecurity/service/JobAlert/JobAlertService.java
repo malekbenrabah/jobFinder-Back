@@ -123,7 +123,7 @@ public class JobAlertService implements IJobAlertService{
 
     @Override
         public void deleteJobAlert(HttpServletRequest request, Integer id) {
-            JobAlert jobAlert = jobAlertRepository.findById(id).get();
+            JobAlert jobAlert = jobAlertRepository.findById(id).orElse(null);
             List<Skill>jobAlertSkills=jobAlert.getSkills();
 
             jobAlertRepository.delete(jobAlert);
@@ -184,6 +184,8 @@ public class JobAlertService implements IJobAlertService{
 
     @Override
     public List<JobAlertDTO> getJobAlerts(HttpServletRequest request) {
+        System.out.println("get user's jobs alerts starting");
+
         User user = userService.getUserByToken(request);
         List<JobAlert> jobAlerts= jobAlertRepository.findByUser(user);
 
@@ -191,6 +193,13 @@ public class JobAlertService implements IJobAlertService{
                 .map(jobAlert -> new JobAlertDTO().fromEntityToDTO(jobAlert))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public JobAlertDTO getJobAlertById(Integer id) {
+       JobAlert jobAlert = jobAlertRepository.findById(id).get();
+       return JobAlertDTO.fromEntityToDTO(jobAlert);
+    }
+
 
     //@Scheduled(cron = "0 */3 * * * *")
     @Scheduled(cron = "0 0 0 * * ?")

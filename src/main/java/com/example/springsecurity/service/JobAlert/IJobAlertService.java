@@ -17,4 +17,7 @@ public interface IJobAlertService {
 
     public List<JobAlertDTO> getJobAlerts(HttpServletRequest request);
 
+    public JobAlertDTO getJobAlertById(Integer id);
+
+
 }

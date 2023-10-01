@@ -61,4 +61,17 @@ public class SkillsService implements ISkillsService{
                 .map(skill -> new SkillDTO().fromEntityToDTO(skill))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<SkillDTO> getUserSkillsById(Integer id) {
+
+        User user= userRepository.findById(id).orElse(null);
+        List<Skill> skills= skillRepository.findByUser(user);
+
+        return skills.stream()
+                .map(skill -> new SkillDTO().fromEntityToDTO(skill))
+                .collect(Collectors.toList());
+    }
+
+
 }

@@ -46,5 +46,10 @@ public class JobAlertController {
 
     }
 
+    @GetMapping("/getJobAlertById")
+    public JobAlertDTO getJobAlertById(@RequestParam("id") Integer id){
+        return jobAlertService.getJobAlertById(id);
+    }
+
 
 }

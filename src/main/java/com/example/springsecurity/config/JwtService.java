@@ -1,5 +1,6 @@
 package com.example.springsecurity.config;
 
+import com.example.springsecurity.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -32,6 +33,11 @@ public class JwtService {
             Map<String,Object> extraClaims,
             UserDetails userDetails
     ){
+        if (userDetails instanceof User) {
+            User user = (User) userDetails;
+            extraClaims.put("role", user.getRole());
+        }
+
         return Jwts
                 .builder()
                 .setClaims(extraClaims)

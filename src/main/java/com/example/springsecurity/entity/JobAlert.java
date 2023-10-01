@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +36,7 @@ public class JobAlert {
     private List<Skill> skills;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
     private User user;
 
 }

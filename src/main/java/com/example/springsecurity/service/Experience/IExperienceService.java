@@ -12,6 +12,8 @@ public interface IExperienceService {
 
     public List<ExperienceDTO> getUserExperiences(HttpServletRequest request);
 
+    public List<ExperienceDTO> getUserExperiencesById(Integer id);
+
     public ExperienceDTO updateExperience(ExperienceDTO experienceDTO);
 
     public void removeExperience(Integer id);

@@ -1,5 +1,6 @@
 package com.example.springsecurity.controller;
 
+import com.example.springsecurity.dto.JobByMonthDTO;
 import com.example.springsecurity.dto.JobDTO;
 import com.example.springsecurity.entity.Job;
 import com.example.springsecurity.entity.JobType;
@@ -36,6 +37,11 @@ public class JobController {
     @DeleteMapping("/deleteJob")
     public void deleteJob(@NonNull HttpServletRequest request, @RequestParam("id") Integer id) {
         jobService.deleteJob(request, id);
+    }
+
+    @DeleteMapping("/deleteJobByAdmin")
+    public void deleteJobByAdmin(  @RequestParam("id") Integer id){
+        jobService.deleteJobByAdmin(id);
     }
 
     @DeleteMapping("/deleteJobSkill")
@@ -116,9 +122,14 @@ public class JobController {
     }
 
 
+    @GetMapping("/getJobsByMonth")
+    public List<Object[]> getJobsByMonth() {
+        return jobService.getJobsByMonth();
+    }
 
 
 
 
 
-}
+
+    }

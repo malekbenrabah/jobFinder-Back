@@ -50,6 +50,16 @@ public class ExperienceService  implements IExperienceService{
     }
 
     @Override
+    public List<ExperienceDTO> getUserExperiencesById(Integer id) {
+        User user= userRepository.findById(id).orElse(null);
+        List<Experience> experiences= experienceRepository.findByUser(user);
+        return experiences.stream()
+                .map(experience -> new ExperienceDTO().fromEntityToDTO(experience))
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
     public ExperienceDTO updateExperience(ExperienceDTO experienceDTO) {
         Experience experience = experienceRepository.findById(experienceDTO.getId()).get();
 

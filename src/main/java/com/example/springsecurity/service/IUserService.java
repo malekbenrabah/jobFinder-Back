@@ -1,6 +1,7 @@
 package com.example.springsecurity.service;
 
 import com.example.springsecurity.dto.UserDTO;
+import com.example.springsecurity.entity.Role;
 import com.example.springsecurity.entity.Skill;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.exception.ForgotPasswordResponse;
@@ -43,6 +44,14 @@ public interface IUserService {
 
     List<UserDTO> getCompanies();
 
+    List<UserDTO> getUsers();
+
     Integer nbUsers();
+
+    public UserDTO getUserById(Integer id);
+
+    public Role getUserRole(HttpServletRequest request);
+
+    public void deleteUser(HttpServletRequest request,Integer id);
 
 }

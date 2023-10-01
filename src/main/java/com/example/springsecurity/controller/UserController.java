@@ -3,6 +3,7 @@ package com.example.springsecurity.controller;
 import com.example.springsecurity.auth.AutenticationResponse;
 import com.example.springsecurity.config.JwtService;
 import com.example.springsecurity.dto.UserDTO;
+import com.example.springsecurity.entity.Role;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.exception.*;
 import com.example.springsecurity.service.IUserService;
@@ -146,12 +147,31 @@ public class UserController {
         return userService.getCompanies();
     }
 
+    @GetMapping("/getUsers")
+    public List<UserDTO> getUsers() {
+        return userService.getUsers();
+    }
+
     @GetMapping("/nbUsers")
     public Integer nbUsers() {
         return  userService.nbUsers();
     }
 
+    @GetMapping("/userInfoById")
+    public UserDTO getUserById( @RequestParam("id") Integer id){
+        return  userService.getUserById(id);
+    }
 
+    @GetMapping("/userRole")
+    public Role getUserRole(@NonNull HttpServletRequest request) {
+        return userService.getUserRole(request);
+    }
+
+
+    @DeleteMapping("/deleteUser")
+    public void deleteUser(@NonNull HttpServletRequest request, @RequestParam("id") Integer userId) {
+        userService.deleteUser(request,userId);
+    }
 
 
 

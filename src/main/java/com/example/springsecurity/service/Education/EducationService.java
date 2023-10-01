@@ -49,6 +49,15 @@ public class EducationService implements IEducationService{
     }
 
     @Override
+    public List<EducationDTO> getUserEducationByUserId(Integer id) {
+        User user= userRepository.findById(id).orElse(null);
+        List<Education> educations= educationRepository.findByUser(user);
+        return educations.stream()
+                .map(education -> new EducationDTO().fromEntityToDTO(education))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public EducationDTO updateEducation(EducationDTO educationDTO) {
         Education education = educationRepository.findById(educationDTO.getId()).get();
 

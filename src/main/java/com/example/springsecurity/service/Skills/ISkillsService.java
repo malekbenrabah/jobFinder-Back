@@ -15,4 +15,6 @@ public interface ISkillsService {
     public void UpdateSkill(SkillDTO skillDTO);
 
     public List<SkillDTO> getUserSkills(HttpServletRequest request);
+
+    public List<SkillDTO> getUserSkillsById(Integer id);
 }
