@@ -42,4 +42,10 @@ public interface IJobService {
 
     public List<Object[]>getJobsByMonth();
 
+    public List<Object[]>getJobsByJobType();
+
+    public List<Object[]> getTopCompanies();
+
+
+
 }

@@ -397,5 +397,15 @@ public class JobService  implements IJobService{
         return  jobRepository.getJobsByMonth();
     }
 
+    @Override
+    public List<Object[]> getJobsByJobType() {
+        return jobRepository.getJobsByJobType();
+    }
+
+    @Override
+    public List<Object[]> getTopCompanies() {
+        return jobRepository.getTopCompanies();
+    }
+
 
 }

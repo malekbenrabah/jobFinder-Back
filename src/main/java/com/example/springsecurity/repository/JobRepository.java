@@ -41,6 +41,13 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
     @Query("select MONTH(j.created_at) as month, count(j.id) from Job j group by month")
     public List<Object[]> getJobsByMonth();
 
+    @Query("select j.jobType, count(j.id) from Job j group by j.jobType")
+    public List<Object[]> getJobsByJobType();
+
+
+    @Query("select count(j.id), j.company from Job  j group by  j.company")
+    public List<Object[]> getTopCompanies();
+
 
 
 

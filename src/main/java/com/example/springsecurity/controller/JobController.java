@@ -127,6 +127,16 @@ public class JobController {
         return jobService.getJobsByMonth();
     }
 
+    @GetMapping("/getJobsByJobType")
+    public List<Object[]> getJobsByJobType() {
+        return jobService.getJobsByJobType();
+    }
+
+    @GetMapping("/getTopCompanies")
+    public List<Object[]> getTopCompanies() {
+        return jobService.getTopCompanies();
+    }
+
 
 
 
