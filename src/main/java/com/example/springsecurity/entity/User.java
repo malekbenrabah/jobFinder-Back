@@ -54,6 +54,8 @@ public class User implements UserDetails {
 
     private String aboutMe;
 
+    private Boolean cv_created;
+
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)

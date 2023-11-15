@@ -2,6 +2,7 @@ package com.example.springsecurity.repository;
 
 import com.example.springsecurity.dto.JobByMonthDTO;
 import com.example.springsecurity.entity.Job;
+import com.example.springsecurity.entity.Sector;
 import com.example.springsecurity.entity.Skill;
 import com.example.springsecurity.entity.User;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,6 +19,8 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
 
     @Query("select j from Job j order by j.created_at desc ")
     public List<Job> findJobsDesc();
+
+    public List<Job> findBySector(Sector sector);
 
     public List<Job> findByCompany(User user);
 
@@ -47,6 +50,7 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
 
     @Query("select count(j.id), j.company from Job  j group by  j.company")
     public List<Object[]> getTopCompanies();
+
 
 
 

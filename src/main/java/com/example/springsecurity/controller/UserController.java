@@ -52,12 +52,21 @@ public class UserController {
         return userService.getUserInfo(request);
     }
 
+    @GetMapping("/userById")
+    public UserDTO getUserInfoById(@RequestParam("id")Integer id){
+        return userService.getUserInfoById(id);
+    }
 
     @PutMapping("/updatePhoto")
     public UserDTO updatePhoto(@RequestParam(value="photo",required = false) MultipartFile photo
                                             ,@NonNull HttpServletRequest request ) throws IOException {
 
         return userService.updatePhoto(photo,request);
+    }
+
+    @PutMapping("/updateCV")
+    public UserDTO updateUserCv(@RequestParam("id")Integer id){
+        return userService.updateUserCv(id);
     }
 
     @PutMapping("/updateUser")

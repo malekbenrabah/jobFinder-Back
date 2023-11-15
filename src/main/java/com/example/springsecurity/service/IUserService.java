@@ -22,6 +22,9 @@ public interface IUserService {
 
     UserDTO getUserInfo(HttpServletRequest request);
 
+    UserDTO getUserInfoById(Integer id);
+
+
     UserDTO updatePhoto(MultipartFile photo,HttpServletRequest request)throws IOException;
 
     UserDTO updateUser(HttpServletRequest request,UserDTO userDTO,MultipartFile photo) throws IOException;
@@ -53,5 +56,7 @@ public interface IUserService {
     public Role getUserRole(HttpServletRequest request);
 
     public void deleteUser(HttpServletRequest request,Integer id);
+
+    public UserDTO updateUserCv(Integer id);
 
 }

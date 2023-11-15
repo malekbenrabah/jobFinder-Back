@@ -88,6 +88,12 @@ public class UserService implements IUserService{
         return UserDTO.fromEntityToDTO(user);
     }
 
+    @Override
+    public UserDTO getUserInfoById(Integer id) {
+        User user = userRepository.findById(id).get();
+        return UserDTO.fromEntityToDTO(user);
+    }
+
     public User getUserByToken(HttpServletRequest request){
         final String authHeader=request.getHeader("Authorization");
 
@@ -144,6 +150,15 @@ public class UserService implements IUserService{
             tokenRepository.delete(jwt);
         }
         userRepository.delete(user);
+    }
+
+    @Override
+    public UserDTO updateUserCv(Integer id) {
+        User user = userRepository.findById(id).get();
+        user.setCv_created(true);
+        userRepository.save(user);
+        return UserDTO.fromEntityToDTO(user);
+
     }
 
 

@@ -24,6 +24,7 @@ public class UserDTO {
     private String companyName;
     private String adresse;
     private String aboutMe;
+    private Boolean cv_created;
 
 
     public static UserDTO fromEntityToDTO(User user){
@@ -40,6 +41,7 @@ public class UserDTO {
                 .companyName(user.getCompanyName())
                 .adresse(user.getAdresse())
                 .aboutMe(user.getAboutMe())
+                .cv_created(user.getCv_created())
                 .build();
 
         return userDTO;
@@ -58,6 +60,7 @@ public class UserDTO {
                 .phone(userDTO.getPhone())
                 .companyName(userDTO.getCompanyName())
                 .adresse(userDTO.getAdresse())
+                .cv_created(userDTO.getCv_created())
                 .build();
         return user;
 

@@ -46,6 +46,7 @@ public interface IJobService {
 
     public List<Object[]> getTopCompanies();
 
+    public  List<JobDTO> findJobsBySector(Sector sector);
 
 
 }

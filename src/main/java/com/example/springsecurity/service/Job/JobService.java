@@ -228,6 +228,7 @@ public class JobService  implements IJobService{
             throw new UserAlreadyAppliedException("You have already applied to this job");
 
         }
+
         job.getUsers().add(user);
         user.getJobs().add(job);
         userRepository.save(user);
@@ -405,6 +406,14 @@ public class JobService  implements IJobService{
     @Override
     public List<Object[]> getTopCompanies() {
         return jobRepository.getTopCompanies();
+    }
+
+    @Override
+    public List<JobDTO> findJobsBySector(Sector sector) {
+        List<Job> jobs = jobRepository.findBySector(sector);
+        return jobs.stream()
+                .map(job -> new JobDTO().fromEntityToDTO(job))
+                .collect(Collectors.toList());
     }
 
 
